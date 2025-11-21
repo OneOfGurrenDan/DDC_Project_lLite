@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load intranet_tags %}
+
+{% block title %}Задачи - DDC Biotech Интранет{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="bi bi-check2-square"></i> Задачи</h1>
+    </div>
+</div>
+
+<!-- Фильтры -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Статус</label>
+                        <select name="status" class="form-select">
+                            <option value="">Все</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Приоритет</label>
+                        <select name="priority" class="form-select">
+                            <option value="">Все</option>
+                            {% for value, label in priority_choices %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="my_tasks" value="true" id="myTasks">
+                            <label class="form-check-label" for="myTasks">Только мои</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="hide_done" value="true" id="hideDone">
+                            <label class="form-check-label" for="hideDone">Скрыть выполненные</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block">
+                            <i class="bi bi-funnel"></i> Применить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Список задач -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if tasks %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Задача</th>
+                                <th>Исполнитель</th>
+                                <th>Статус</th>
+                                <th>Приоритет</th>
+                                <th>Дедлайн</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>
+                                    <strong>{{ task.title }}</strong>
+                                    {% if task.is_overdue %}
+                                    <span class="badge bg-danger">Просрочено</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.assignee.username|default:"—" }}</td>
+                                <td><span class="badge {{ task.status|status_badge }}">{{ task.get_status_display }}</span></td>
+                                <td><span class="badge {{ task.priority|priority_badge }}">{{ task.get_priority_display }}</span></td>
+                                <td>
+                                    {% if task.deadline %}
+                                    {{ task.deadline|date:"d.m.Y H:i" }}
+                                    {% else %}
+                                    —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Пагинация -->
+                {% if tasks.has_other_pages %}
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {% if tasks.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ tasks.previous_page_number }}">Назад</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ tasks.number }} из {{ tasks.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if tasks.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ tasks.next_page_number }}">Вперёд</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <p class="text-muted text-center">Задачи не найдены</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,20 @@
+{% if reagents %}
+<ul class="list-group">
+    {% for reagent in reagents %}
+    <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ reagent.name }}</strong>
+                <br>
+                <small class="text-muted">{{ reagent.get_category_display }}</small>
+            </div>
+            <span class="badge bg-danger">{{ reagent.on_hand }}</span>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Все реагенты в норме</p>
+{% endif %}
+
+

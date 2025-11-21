@@ -1,0 +1,30 @@
+/* Стили для формы рецептуры */
+
+.recipe-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.recipe-ingredients {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.ingredient-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ingredient-row select,
+.ingredient-row input {
+    flex: 1;
+}
+
+.btn-add-ingredient {
+    margin-top: 10px;
+}
+
+
