@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load intranet_tags %}
+
+{% block title %}Объявления - DDC Biotech Интранет{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="bi bi-megaphone"></i> Объявления</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        {% if announcements %}
+        {% for announcement in announcements %}
+        <div class="card mb-3 {% if announcement.is_pinned %}border-warning{% endif %}">
+            <div class="card-body">
+                {% if announcement.is_pinned %}
+                <span class="badge bg-warning text-dark mb-2">
+                    <i class="bi bi-pin-angle-fill"></i> Закреплено
+                </span>
+                {% endif %}
+                <h4 class="card-title">{{ announcement.title }}</h4>
+                <p class="card-text">{{ announcement.text }}</p>
+                <hr>
+                <small class="text-muted">
+                    <i class="bi bi-person"></i> {{ announcement.author.get_full_name|default:announcement.author.username }} | 
+                    <i class="bi bi-calendar"></i> {{ announcement.published_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if announcements.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if announcements.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ announcements.previous_page_number }}">Назад</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ announcements.number }} из {{ announcements.paginator.num_pages }}</span></li>
+                {% if announcements.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ announcements.next_page_number }}">Вперёд</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Объявления отсутствуют
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

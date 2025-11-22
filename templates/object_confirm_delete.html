@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить {{ object.name }} - DDC Biotech Интранет{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Подтверждение удаления</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">Вы уверены, что хотите удалить реагент <strong>"{{ object.name }}"</strong>?</p>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Это действие нельзя отменить. Все связанные данные также будут удалены.
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'reagent_detail' object.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Да, удалить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

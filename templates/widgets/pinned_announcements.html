@@ -1,0 +1,22 @@
+{% load intranet_tags %}
+
+{% if announcements %}
+<div class="list-group">
+    {% for announcement in announcements %}
+    <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">
+                <i class="bi bi-pin-angle-fill text-warning"></i> {{ announcement.title }}
+            </h6>
+            <small>{{ announcement.published_at|date:"d.m.Y" }}</small>
+        </div>
+        <p class="mb-1">{{ announcement.text|truncatechars:100 }}</p>
+        <small class="text-muted">{{ announcement.author.username }}</small>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Нет закреплённых объявлений</p>
+{% endif %}
+
+

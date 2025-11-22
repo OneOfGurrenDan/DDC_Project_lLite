@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Фильтрация реагентов - DDC Biotech Интранет{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="bi bi-funnel"></i> Расширенная фильтрация реагентов</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5>Уникальные категории:</h5>
+                <div class="mb-3">
+                    {% for category in categories %}
+                    <span class="badge bg-secondary me-2">{{ category }}</span>
+                    {% endfor %}
+                </div>
+
+                <h5>Реагенты с остатком:</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Остаток</th>
+                                <th>Мин. порог</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reagent in reagents_data %}
+                            <tr>
+                                <td>{{ reagent.id }}</td>
+                                <td>{{ reagent.name }}</td>
+                                <td>{{ reagent.category }}</td>
+                                <td>{{ reagent.on_hand }}</td>
+                                <td>{{ reagent.min_threshold }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

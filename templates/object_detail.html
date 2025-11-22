@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load intranet_tags %}
+
+{% block title %}{{ object.name }} - DDC Biotech Интранет{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Главная</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'object_list' %}">Реагенты</a></li>
+                <li class="breadcrumb-item active">{{ object.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-flask"></i> {{ object.name }}</h2>
+            </div>
+            <div class="card-body">
+                <!-- Основная информация -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Категория:</strong> {{ object.get_category_display }}</p>
+                        <p><strong>Остаток:</strong> {{ object.on_hand }}</p>
+                        <p><strong>Минимальный порог:</strong> {{ object.min_threshold }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if object.expiry_date %}
+                        <p><strong>Срок годности:</strong> {{ object.expiry_date|date:"d.m.Y" }}</p>
+                        {% with days=object.expiry_date|days_until %}
+                        <p>
+                            <strong>Дней до истечения:</strong> 
+                            {% if days < 0 %}
+                            <span class="badge bg-danger">Истёк</span>
+                            {% elif days <= 30 %}
+                            <span class="badge bg-warning">{{ days }}</span>
+                            {% else %}
+                            {{ days }}
+                            {% endif %}
+                        </p>
+                        {% endwith %}
+                        {% endif %}
+                        
+                        {% if object.external_link %}
+                        <p><strong>Внешняя ссылка:</strong> <a href="{{ object.external_link }}" target="_blank">Открыть</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if object.is_critical %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Внимание!</strong> Остаток реагента ниже минимального порога!
+                </div>
+                {% endif %}
+
+                <!-- Изображение и сертификат -->
+                <div class="row mb-3">
+                    {% if object.image %}
+                    <div class="col-md-6">
+                        <strong>Изображение:</strong><br>
+                        <img src="{{ object.image.url }}" alt="{{ object.name }}" class="img-fluid rounded mt-2" style="max-height: 300px;">
+                    </div>
+                    {% endif %}
+                    
+                    {% if object.certificate %}
+                    <div class="col-md-6">
+                        <strong>Сертификат:</strong><br>
+                        <a href="{{ object.certificate.url }}" class="btn btn-outline-primary mt-2" target="_blank">
+                            <i class="bi bi-file-earmark-pdf"></i> Скачать сертификат
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Действия -->
+                <div class="mt-4">
+                    {% if can_edit %}
+                    <a href="{% url 'object_update' object.pk %}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    {% endif %}
+                    {% if can_delete %}
+                    <a href="{% url 'object_delete' object.pk %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'object_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Рецепты, использующие этот реагент -->
+        {% if recipes %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-journal-text"></i> Используется в рецептурах</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for recipe in recipes %}
+                    <li class="list-group-item">
+                        <strong>{{ recipe.name }}</strong>
+                        <span class="badge {{ recipe.status|status_badge }}">{{ recipe.get_status_display }}</span>
+                        <br>
+                        <small class="text-muted">Автор: {{ recipe.author.get_full_name|default:recipe.author.username }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Боковая панель с историей движений -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> История движений</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_movements %}
+                <div class="list-group list-group-flush">
+                    {% for movement in recent_movements %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if movement.movement_type == 'in' %}
+                                <span class="badge bg-success"><i class="bi bi-arrow-down"></i> Приход</span>
+                                {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-arrow-up"></i> Расход</span>
+                                {% endif %}
+                                <strong>{{ movement.quantity }}</strong>
+                            </div>
+                            <small class="text-muted">{{ movement.date|date:"d.m H:i" }}</small>
+                        </div>
+                        {% if movement.user %}
+                        <small class="text-muted">{{ movement.user.username }}</small>
+                        {% endif %}
+                        {% if movement.comment %}
+                        <p class="mb-0 mt-1"><small>{{ movement.comment|truncatechars:50 }}</small></p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">Нет движений</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Информация о создании/обновлении -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-body">
+                <h6>Информация</h6>
+                <p class="mb-1"><small class="text-muted">Создан: {{ object.created_at|date:"d.m.Y H:i" }}</small></p>
+                <p class="mb-0"><small class="text-muted">Обновлён: {{ object.updated_at|date:"d.m.Y H:i" }}</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
